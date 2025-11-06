@@ -106,15 +106,13 @@ def build_agent(tools):
 def ask_agent(agent_executor, question: str):
     result = agent_executor.invoke({"input": question})
     answer = result["output"]
-
-    # 9. intermediate_steps 통해 사용툴을 출력할 수 있는 코드 완성하기
-    # intermediate_steps에서 마지막만 가져오기
-    if "intermediate_steps" in result and result["intermediate_steps"]:
-        last_step = result["intermediate_steps"][-1]
-        tool_name = last_step[0].tool
-        st.info(f"🔧 사용된 도구: {tool_name}")
     
-    return answer
+    # intermediate_steps에서 마지막만 가져오기
+    if result.get("intermediate_steps"):
+        last_action, _ = result["intermediate_steps"][-1]
+        answer += f"\n\n출처:\n- Tool: {last_action.tool}, Query: {last_action.tool_input}"
+
+    return f"답변:\n{answer}"
 
 # --------------------------------------------------------------------
 # 5. Streamlit 메인
